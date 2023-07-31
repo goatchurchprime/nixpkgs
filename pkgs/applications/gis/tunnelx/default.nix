@@ -4,18 +4,19 @@
 , jdk
 , jre
 , survex
+, gdal
 , makeWrapper
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "tunnelx";
-  version = "2023-07-nix";
+  version = "2023-08-nix";
 
   src = fetchFromGitHub {
     owner = "CaveSurveying";
     repo = "tunnelx";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-H6lHqc9on/pv/KihNcaHPwbWf4JXRkeRqNoYq6yVKqM=";
+    hash = "sha256-Icr7RnXl8hDRvQc1X8N2+Q1wFpz/v2ID0F0Ou53m3JQ=";
   };
 
   nativeBuildInputs = [
@@ -26,7 +27,7 @@ stdenv.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
-    javac -d . src/*.java
+    javac -version -d . src/*.java
 
     runHook postBuild
   '';
@@ -40,7 +41,8 @@ stdenv.mkDerivation (finalAttrs: {
     makeWrapper ${jre}/bin/java $out/bin/tunnelx \
       --add-flags "-cp $out/java Tunnel.MainBox" \
       --set SURVEX_EXECUTABLE_DIR ${lib.getBin survex}/bin/ \
-      --set TUNNEL_USER_DIR $out/java/
+      --set TUNNEL_USER_DIR $out/java/ \
+      --suffix PATH : ${lib.makeBinPath [ gdal ]}
 
     runHook postInstall
   '';
